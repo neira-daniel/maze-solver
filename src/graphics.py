@@ -12,7 +12,12 @@ class Window:
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
         self.__root.title("Maze Solver")
 
-        self.__canvas = Canvas(master=self.__root, width=width, height=height)
+        self._width = width
+        self._height = height
+
+        self.__canvas = Canvas(
+            master=self.__root, width=self._width, height=self._height
+        )
         self.__canvas.pack()
 
         self.__running = False
@@ -86,3 +91,38 @@ class Line:
         x1, y1 = self.point_A.get_coordinates()
         x2, y2 = self.point_B.get_coordinates()
         canvas.create_line(x1, y1, x2, y2, fill=fill_color, width=2)
+
+
+class Cell:
+    """
+    Object that represents the units or cells that comprise the maze.
+
+    Each Cell object stores the position of said object in the canvas and which of
+    its walls are active.
+    """
+
+    def __init__(
+        self, top_left: "Point", bottom_right: "Point", window: "Window"
+    ) -> None:
+        self._x1, self._y1 = top_left.get_coordinates()
+        self._x2, self._y2 = bottom_right.get_coordinates()
+        self._win = window
+
+        self.has_N_wall = True
+        self.has_S_wall = True
+        self.has_E_wall = True
+        self.has_W_wall = True
+
+        self._north = Line(Point(self._x1, self._y1), Point(self._x2, self._y1))
+        self._south = Line(Point(self._x1, self._y2), Point(self._x2, self._y2))
+        self._east = Line(Point(self._x2, self._y1), Point(self._x2, self._y2))
+        self._west = Line(Point(self._x1, self._y1), Point(self._x1, self._y2))
+
+    def draw(self, fill_color: str = "black"):
+        walls = zip(
+            [self.has_N_wall, self.has_S_wall, self.has_E_wall, self.has_W_wall],
+            [self._north, self._south, self._east, self._west],
+        )
+        for active, line in walls:
+            if active:
+                self._win.draw_line(line, fill_color)
