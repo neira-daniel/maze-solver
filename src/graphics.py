@@ -1,6 +1,7 @@
 from tkinter import Tk, BOTH, Canvas
 import time
 from typing import Optional
+import warnings
 
 
 class Window:
@@ -155,18 +156,32 @@ class Maze:
         self,
         x0: int | float,
         y0: int | float,
-        num_rows: int,
-        num_cols: int,
-        cell_size_x: int,
-        cell_size_y: int,
+        num_rows: int | float,
+        num_cols: int | float,
+        cell_size_x: int | float,
+        cell_size_y: int | float,
         window: Optional["Window"] = None,
     ) -> None:
-        self._x0 = x0
-        self._y0 = y0
-        self._num_rows = num_rows
-        self._num_cols = num_cols
-        self._cell_size_x = cell_size_x
-        self._cell_size_y = cell_size_y
+        if num_rows < 1 or num_cols < 1:
+            raise ValueError("Invalid number of rows or columns")
+        if window is not None and not isinstance(window, Window):
+            raise TypeError(
+                "Invalid `window` parameter. It must be `window: Optional[Windows]`"
+            )
+
+        if not isinstance(x0, int) or not isinstance(y0, int):
+            warnings.warn("Casting origin coordinates to int", UserWarning)
+        if not isinstance(num_rows, int) or not isinstance(num_cols, int):
+            warnings.warn("Casting number of cells to int", UserWarning)
+        if not isinstance(cell_size_x, int) or not isinstance(cell_size_y, int):
+            warnings.warn("Casting cell dimensions to int", UserWarning)
+
+        self._x0 = int(x0)
+        self._y0 = int(y0)
+        self._num_rows = int(num_rows)
+        self._num_cols = int(num_cols)
+        self._cell_size_x = int(cell_size_x)
+        self._cell_size_y = int(cell_size_y)
         self._win = window
 
         self._create_cells()
