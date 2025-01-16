@@ -168,21 +168,21 @@ class Maze:
 
         x, y = self._x0, self._y0
 
-        for row in range(self._num_rows):
+        for column in range(self._num_cols):
             self._cells.append(
                 [
                     Cell(
-                        Point(x + k * self._cell_size_x, y),
-                        Point(x + (k + 1) * self._cell_size_x, y + self._cell_size_y),
+                        Point(x, y + k * self._cell_size_y),
+                        Point(x + self._cell_size_x, y + (k + 1) * self._cell_size_y),
                         self._win,
                     )
-                    for k in range(self._num_cols)
+                    for k in range(self._num_rows)
                 ]
             )
-            y += self._cell_size_y
+            x += self._cell_size_x
 
-        for i in range(self._num_rows):
-            for j in range(self._num_cols):
+        for i in range(self._num_cols):
+            for j in range(self._num_rows):
                 self._draw_cell(i, j)
 
     def _draw_cell(self, i, j):
