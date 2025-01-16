@@ -47,12 +47,12 @@ class Point:
     Object that stores 2D-point coordinates in pixels.
     """
 
-    def __init__(self, x: int, y: int) -> None:
+    def __init__(self, x: int | float, y: int | float) -> None:
         """Initializes a Point object with `x` being the horizontal direction and `y` the vertical.
 
         Note that the origin coordinate (x=0, y=0) represents the top left of the window."""
-        self.x = x
-        self.y = y
+        self.x = int(x)
+        self.y = int(y)
 
     def __add__(self, other: "Point") -> "Point":
         return Point(self.x + other.x, self.y + other.y)
@@ -126,3 +126,12 @@ class Cell:
         for active, line in walls:
             if active:
                 self._win.draw_line(line, fill_color)
+
+    def draw_move(self, to_cell: "Cell", undo: bool = False) -> None:
+        line_color = "gray" if undo else "red"
+        start = Point(0.5 * (self._x2 + self._x1), 0.5 * (self._y2 + self._y1))
+        finish = Point(
+            0.5 * (to_cell._x2 + to_cell._x1), 0.5 * (to_cell._y2 + to_cell._y1)
+        )
+        start_to_finish = Line(start, finish)
+        self._win.draw_line(start_to_finish, line_color)

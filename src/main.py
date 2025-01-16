@@ -14,6 +14,18 @@ def main():
     cell_2 = Cell(point_A + point_B, 1.1 * (point_A + point_B), win)
     cell_2.has_W_wall = False
     cell_2.draw()
+    cell_3 = Cell(Point(500, 100), Point(600, 200), win)
+    cell_3.has_S_wall = False
+    cell_3.has_E_wall = False
+    cell_4 = Cell(Point(500, 200), Point(600, 300), win)
+    cell_4.has_N_wall = False
+    cell_5 = Cell(Point(600, 100), Point(700, 200), win)
+    cell_5.has_W_wall = False
+    cell_3.draw("orange1")
+    cell_4.draw("green4")
+    cell_5.draw("black")
+    cell_3.draw_move(cell_4)
+    cell_3.draw_move(cell_5, True)
     win.wait_for_close()
 
 
