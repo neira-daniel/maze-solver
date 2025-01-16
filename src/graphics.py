@@ -1,5 +1,6 @@
 from tkinter import Tk, BOTH, Canvas
 import time
+from typing import Optional
 
 
 class Window:
@@ -103,7 +104,10 @@ class Cell:
     """
 
     def __init__(
-        self, top_left: "Point", bottom_right: "Point", window: "Window"
+        self,
+        top_left: "Point",
+        bottom_right: "Point",
+        window: Optional["Window"] = None,
     ) -> None:
         self._x1, self._y1 = top_left.get_coordinates()
         self._x2, self._y2 = bottom_right.get_coordinates()
@@ -120,6 +124,8 @@ class Cell:
         self._west = Line(Point(self._x1, self._y1), Point(self._x1, self._y2))
 
     def draw(self, fill_color: str = "black"):
+        if self._win is None:
+            return
         walls = zip(
             [self.has_N_wall, self.has_S_wall, self.has_E_wall, self.has_W_wall],
             [self._north, self._south, self._east, self._west],
@@ -129,6 +135,8 @@ class Cell:
                 self._win.draw_line(line, fill_color)
 
     def draw_move(self, to_cell: "Cell", undo: bool = False) -> None:
+        if self._win is None:
+            return
         line_color = "gray" if undo else "red"
         start = Point(0.5 * (self._x2 + self._x1), 0.5 * (self._y2 + self._y1))
         finish = Point(
@@ -151,7 +159,7 @@ class Maze:
         num_cols: int,
         cell_size_x: int,
         cell_size_y: int,
-        win: "Window",
+        window: Optional["Window"] = None,
     ) -> None:
         self._x0 = x0
         self._y0 = y0
@@ -159,7 +167,7 @@ class Maze:
         self._num_cols = num_cols
         self._cell_size_x = cell_size_x
         self._cell_size_y = cell_size_y
-        self._win = win
+        self._win = window
 
         self._create_cells()
 
@@ -181,14 +189,19 @@ class Maze:
             )
             x += self._cell_size_x
 
-        for i in range(self._num_cols):
-            for j in range(self._num_rows):
-                self._draw_cell(i, j)
+        if self._win is not None:
+            for i in range(self._num_cols):
+                for j in range(self._num_rows):
+                    self._draw_cell(i, j)
 
     def _draw_cell(self, i, j):
+        if self._win is None:
+            return
         self._cells[i][j].draw()
         self._animate()
 
     def _animate(self):
+        if self._win is None:
+            return
         self._win.redraw()
         time.sleep(0.05)

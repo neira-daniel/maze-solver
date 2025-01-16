@@ -27,7 +27,13 @@ def main():
     # cell_3.draw_move(cell_4)
     # cell_3.draw_move(cell_5, True)
     _ = Maze(
-        x0=50, y0=50, num_rows=5, num_cols=4, cell_size_x=100, cell_size_y=100, win=win
+        x0=50,
+        y0=50,
+        num_rows=5,
+        num_cols=4,
+        cell_size_x=100,
+        cell_size_y=100,
+        window=None,
     )
     win.wait_for_close()
 
