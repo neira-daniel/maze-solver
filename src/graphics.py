@@ -1,4 +1,5 @@
 from tkinter import Tk, BOTH, Canvas
+import time
 
 
 class Window:
@@ -135,3 +136,59 @@ class Cell:
         )
         start_to_finish = Line(start, finish)
         self._win.draw_line(start_to_finish, line_color)
+
+
+class Maze:
+    """
+    Deals with the Cell objects in the maze.
+    """
+
+    def __init__(
+        self,
+        x0: int | float,
+        y0: int | float,
+        num_rows: int,
+        num_cols: int,
+        cell_size_x: int,
+        cell_size_y: int,
+        win: "Window",
+    ) -> None:
+        self._x0 = x0
+        self._y0 = y0
+        self._num_rows = num_rows
+        self._num_cols = num_cols
+        self._cell_size_x = cell_size_x
+        self._cell_size_y = cell_size_y
+        self._win = win
+
+        self._create_cells()
+
+    def _create_cells(self) -> None:
+        self._cells = []
+
+        x, y = self._x0, self._y0
+
+        for row in range(self._num_rows):
+            self._cells.append(
+                [
+                    Cell(
+                        Point(x + k * self._cell_size_x, y),
+                        Point(x + (k + 1) * self._cell_size_x, y + self._cell_size_y),
+                        self._win,
+                    )
+                    for k in range(self._num_cols)
+                ]
+            )
+            y += self._cell_size_y
+
+        for i in range(self._num_rows):
+            for j in range(self._num_cols):
+                self._draw_cell(i, j)
+
+    def _draw_cell(self, i, j):
+        self._cells[i][j].draw()
+        self._animate()
+
+    def _animate(self):
+        self._win.redraw()
+        time.sleep(0.05)
