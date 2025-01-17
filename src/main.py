@@ -11,6 +11,7 @@ def main():
         cell_size_x=100,
         cell_size_y=100,
         window=win,
+        seed=1,
     )
     win.wait_for_close()
 

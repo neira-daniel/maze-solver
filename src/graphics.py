@@ -2,6 +2,7 @@ from tkinter import Tk, BOTH, Canvas
 import time
 from typing import Optional
 import warnings
+import random
 
 
 class Window:
@@ -119,6 +120,7 @@ class Cell:
     ) -> None:
         self._x1, self._y1 = top_left.get_coordinates()
         self._x2, self._y2 = bottom_right.get_coordinates()
+
         self._win = window
 
         self.has_N_wall = True
@@ -130,6 +132,14 @@ class Cell:
         self._south = Line(Point(self._x1, self._y2), Point(self._x2, self._y2))
         self._east = Line(Point(self._x2, self._y1), Point(self._x2, self._y2))
         self._west = Line(Point(self._x1, self._y1), Point(self._x1, self._y2))
+
+        # to track which cells have been visited
+        # this will mean different things in different contexts
+        # when solving the maze it will mean just that: which cells have been visited
+        # during the process
+        # but, when creating it, it keeps track of whether the cell has been visited
+        # to break down one of its walls in a depth-first like algorithm
+        self.visited = False
 
     def draw(self, fill_color: str = "black"):
         if self._win is None:
@@ -170,6 +180,7 @@ class Maze:
         cell_size_x: int | float,
         cell_size_y: int | float,
         window: Optional["Window"] = None,
+        seed: Optional[int] = None,
     ) -> None:
         if num_rows < 1 or num_cols < 1:
             raise ValueError("Invalid number of rows or columns")
@@ -177,6 +188,8 @@ class Maze:
             raise TypeError(
                 "Invalid `window` parameter. It must be `window: Optional[Windows]`"
             )
+        if seed is not None and not isinstance(seed, int):
+            raise TypeError("`seed` parameter can only be int | None")
 
         if not isinstance(x0, int) or not isinstance(y0, int):
             warnings.warn("Casting origin coordinates to int", UserWarning)
@@ -192,6 +205,10 @@ class Maze:
         self._cell_size_x = int(cell_size_x)
         self._cell_size_y = int(cell_size_y)
         self._win = window
+
+        self._seed = seed
+        if self._seed is not None:
+            random.seed(self._seed)
 
         self._create_cells()
 
@@ -222,6 +239,10 @@ class Maze:
 
         self._break_entrance_and_exit()
 
+        self._break_walls_r()
+
+        self._reset_cells_visited()
+
     def _draw_cell(self, i, j) -> None:
         if self._win is None:
             return
@@ -242,3 +263,58 @@ class Maze:
         finishing_cell = self._cells[-1][-1]
         finishing_cell.has_S_wall = False
         self._draw_cell(-1, -1)
+
+    def _break_walls_r(self, i: int = 0, j: int = 0) -> None:
+        if not isinstance(i, int) or not isinstance(j, int):
+            raise TypeError("index `i` and `j` should be int")
+        # depth-first traversal-like algorithm
+        self._cells[i][j].visited = True
+        while True:
+            # check whether neighbors are yet to be visited
+            to_visit = []
+            # northern neighbor
+            ii, jj = i, j - 1
+            if j > 1 and not self._cells[ii][jj].visited:
+                to_visit.append((ii, jj))
+            # southern neighbor
+            ii, jj = i, j + 1
+            if j < self._num_rows - 1 and not self._cells[ii][jj].visited:
+                to_visit.append((ii, jj))
+            # eastern neighbor
+            ii, jj = i + 1, j
+            if i < self._num_cols - 1 and not self._cells[ii][jj].visited:
+                to_visit.append((ii, jj))
+            # western neighbor
+            ii, jj = i - 1, j
+            if i > 1 and not self._cells[ii][jj].visited:
+                to_visit.append((ii, jj))
+
+            N_neighbors_to_visit = len(to_visit)
+            if N_neighbors_to_visit == 0:
+                # no neighbors to visit
+                self._draw_cell(i, j)
+                return
+
+            # pick a yet to be visited neighbor at random
+            next_i, next_j = to_visit[random.randrange(N_neighbors_to_visit)]
+            # break down the walls between the current cell and the next
+            if i < next_i:
+                self._cells[i][j].has_E_wall = False
+                self._cells[next_i][next_j].has_W_wall = False
+            elif next_i < i:
+                self._cells[i][j].has_W_wall = False
+                self._cells[next_i][next_j].has_E_wall = False
+            elif j < next_j:
+                self._cells[i][j].has_S_wall = False
+                self._cells[next_i][next_j].has_N_wall = False
+            else:
+                self._cells[i][j].has_N_wall = False
+                self._cells[next_i][next_j].has_S_wall = False
+
+            # go on to another adventure
+            self._break_walls_r(next_i, next_j)
+
+    def _reset_cells_visited(self) -> None:
+        for i in range(self._num_cols):
+            for j in range(self._num_rows):
+                self._cells[i][j].visited = False
