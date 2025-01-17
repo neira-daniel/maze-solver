@@ -40,6 +40,40 @@ class TestMaze(unittest.TestCase):
 
         self.assertEqual(maze._cells[-1][-1].has_S_wall, False)
 
+    def test_visited_property(self):
+        num_cols = 12
+        num_rows = 10
+        maze = Maze(0, 0, num_rows, num_cols, 10, 10)
+        maze._break_entrance_and_exit()
+
+        maze._break_walls_r(0, 0)
+
+        visited = [
+            maze._cells[i][j].visited
+            for i in range(maze._num_cols)
+            for j in range(maze._num_rows)
+        ]
+
+        self.assertTrue(any(visited))
+
+    def test_reset_visited_property(self):
+        num_cols = 12
+        num_rows = 10
+        maze = Maze(0, 0, num_rows, num_cols, 10, 10)
+        maze._break_entrance_and_exit()
+
+        maze._break_walls_r(0, 0)
+
+        maze._reset_cells_visited()
+
+        visited = [
+            maze._cells[i][j].visited
+            for i in range(maze._num_cols)
+            for j in range(maze._num_rows)
+        ]
+
+        self.assertFalse(any(visited))
+
 
 if __name__ == "__main__":
     unittest.main()
