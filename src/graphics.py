@@ -9,7 +9,9 @@ class Window:
     Object that manages Tkinter windows on screen.
     """
 
-    def __init__(self, width: int, height: int) -> None:
+    def __init__(
+        self, width: int, height: int, background_color: str = "white"
+    ) -> None:
         """Initializes a Window object without displaying it on screen."""
         self.__root = Tk()
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
@@ -18,8 +20,13 @@ class Window:
         self._width = width
         self._height = height
 
+        self._background_color = background_color
+
         self.__canvas = Canvas(
-            master=self.__root, width=self._width, height=self._height
+            master=self.__root,
+            width=self._width,
+            height=self._height,
+            background=self._background_color,
         )
         self.__canvas.pack()
 
@@ -134,6 +141,8 @@ class Cell:
         for active, line in walls:
             if active:
                 self._win.draw_line(line, fill_color)
+            else:
+                self._win.draw_line(line, self._win._background_color)
 
     def draw_move(self, to_cell: "Cell", undo: bool = False) -> None:
         if self._win is None:
@@ -204,19 +213,32 @@ class Maze:
             )
             x += self._cell_size_x
 
-        if self._win is not None:
-            for i in range(self._num_cols):
-                for j in range(self._num_rows):
-                    self._draw_cell(i, j)
+        if self._win is None:
+            return
 
-    def _draw_cell(self, i, j):
+        for i in range(self._num_cols):
+            for j in range(self._num_rows):
+                self._draw_cell(i, j)
+
+        self._break_entrance_and_exit()
+
+    def _draw_cell(self, i, j) -> None:
         if self._win is None:
             return
         self._cells[i][j].draw()
         self._animate()
 
-    def _animate(self):
+    def _animate(self) -> None:
         if self._win is None:
             return
         self._win.redraw()
         time.sleep(0.05)
+
+    def _break_entrance_and_exit(self) -> None:
+        starting_cell = self._cells[0][0]
+        starting_cell.has_N_wall = False
+        self._draw_cell(0, 0)
+
+        finishing_cell = self._cells[-1][-1]
+        finishing_cell.has_S_wall = False
+        self._draw_cell(-1, -1)
