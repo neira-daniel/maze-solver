@@ -270,11 +270,11 @@ class Maze:
         # depth-first traversal-like algorithm
         self._cells[i][j].visited = True
         while True:
-            # check whether neighbors are yet to be visited
+            # check whether there are neighbors yet to be visited
             to_visit = []
             # northern neighbor
             ii, jj = i, j - 1
-            if j > 1 and not self._cells[ii][jj].visited:
+            if j > 0 and not self._cells[ii][jj].visited:
                 to_visit.append((ii, jj))
             # southern neighbor
             ii, jj = i, j + 1
@@ -286,7 +286,7 @@ class Maze:
                 to_visit.append((ii, jj))
             # western neighbor
             ii, jj = i - 1, j
-            if i > 1 and not self._cells[ii][jj].visited:
+            if i > 0 and not self._cells[ii][jj].visited:
                 to_visit.append((ii, jj))
 
             N_neighbors_to_visit = len(to_visit)
