@@ -3,16 +3,17 @@ from graphics import Window, Maze
 
 def main():
     win = Window(800, 600)
-    _ = Maze(
+    maze = Maze(
         x0=50,
         y0=50,
-        num_rows=5,
-        num_cols=4,
-        cell_size_x=100,
-        cell_size_y=100,
+        num_rows=10,
+        num_cols=14,
+        cell_size_x=50,
+        cell_size_y=50,
         window=win,
-        seed=1,
+        seed=None,
     )
+    maze.solve()
     win.wait_for_close()
 
 

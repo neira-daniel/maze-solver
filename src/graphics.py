@@ -318,3 +318,43 @@ class Maze:
         for i in range(self._num_cols):
             for j in range(self._num_rows):
                 self._cells[i][j].visited = False
+
+    def solve(self) -> bool:
+        return self._solve_r(0, 0)
+
+    def _solve_r(self, i: int, j: int) -> bool:
+        self._animate()
+
+        self._cells[i][j].visited = True
+
+        # if we are on the final cell, we have solved the maze
+        if i == self._num_cols - 1 and j == self._num_rows - 1:
+            return True
+
+        # directions: north, south, east, west
+        for k, (ii, jj) in enumerate([(i, j - 1), (i, j + 1), (i + 1, j), (i - 1, j)]):
+            # check that the cell exists
+            if (ii < 0 or ii >= self._num_cols) or (jj < 0 or jj >= self._num_rows):
+                continue
+
+            # define direction
+            match k:
+                case 0:
+                    wall = self._cells[i][j].has_N_wall
+                case 1:
+                    wall = self._cells[i][j].has_S_wall
+                case 2:
+                    wall = self._cells[i][j].has_E_wall
+                case _:
+                    wall = self._cells[i][j].has_W_wall
+
+            # visit the other cell if it's feasible
+            if not wall and not self._cells[ii][jj].visited:
+                self._cells[i][j].draw_move(to_cell=self._cells[ii][jj], undo=False)
+                result = self._solve_r(ii, jj)
+                if result:
+                    return True
+                self._cells[i][j].draw_move(to_cell=self._cells[ii][jj], undo=True)
+
+        # when we're in a dead end
+        return False
